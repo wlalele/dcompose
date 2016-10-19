@@ -1,0 +1,53 @@
+version: '2'
+services:
+  php:
+    image: php:5.6-fpm
+    expose:
+      - "9000"
+    links:
+      - db
+    volumes:
+      #- ./www:/usr/share/nginx/html
+      - ./www:/usr/local/apache2/htdocs
+
+  apache:
+    image: httpd:2.2
+    ports:
+      - "80:80"
+    mem_limit: 200MB
+    volumes_from:
+      - php
+    volumes:
+      - ./data/apache/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+
+  #nginx:
+  #  image: nginx:stable
+  #  ports:
+  #    - "80:80"
+  #  links:
+  #    - php
+  #  volumes_from:
+  #    - php
+  #  volumes:
+  #    - ./data/nginx/conf:/etc/nginx/conf.d:ro
+  #    - ./data/nginx/logs:/var/log/nginx
+
+  db:
+    image: mysql:5.5
+    ports:
+      - "3306:3306"
+  #  volumes:
+  #    - ./data/db:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  #    MYSQL_DATABASE: database
+  #    MYSQL_USER: user
+  #    MYSQL_PASSWORD: user
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8000:80"
+    links:
+      - db
